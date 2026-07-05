@@ -1,6 +1,8 @@
 cask "pencil-dev" do
-  version :latest
+  version "1.1.68,1782939031301980"
   sha256 :no_check
+
+  # autobump-md5: 23qr0VuSkv80v8yPYnJxBA==
 
   on_arm do
     url "https://www.pencil.dev/download/Pencil-mac-arm64.dmg"
@@ -15,10 +17,12 @@ cask "pencil-dev" do
 
   # Token is "pencil-dev" (not "pencil") to avoid colliding with the unrelated
   # Evolus Pencil cask in homebrew-cask. The download URL is an unversioned,
-  # moving "latest" pointer (302 -> a signed GCS URL), so there is nothing to
-  # pin: version :latest + sha256 :no_check is the only workable pairing.
-  # Pencil ships no auto-updater (updates are manual), so refresh with
-  #   brew upgrade --cask --greedy pencil-dev
+  # moving "latest" pointer (302 -> a signed GCS URL) with no stable checksum,
+  # so sha256 is :no_check and the version is a real-version + GCS-generation
+  # hybrid ("<CFBundleShortVersionString>,<x-goog-generation>"). It is kept
+  # current automatically by .github/workflows/autobump.yml (weekly); the
+  # "# autobump-md5:" line above is the pipeline's byte-change detector.
+  # See DECISIONS.md for the full rationale.
   depends_on macos: :monterey # LSMinimumSystemVersion = 12.0
 
   app "Pencil.app"

@@ -1,0 +1,61 @@
+name: autobump
+
+# Keep versioned-hybrid casks current. `detect` (ubuntu, header-only, no download)
+# finds casks that are due AND changed; `bump` (macOS, only when something changed)
+# mounts the dmg, reads the real version, rewrites the cask, and commits to main.
+# Per-cask cadence/enable live in repo Variables (no file edits) — see DECISIONS.md.
+
+on:
+  schedule:
+    - cron: "0 7 * * *" # daily base tick; per-cask cadence gates inside detect
+  workflow_dispatch:
+    inputs:
+      cask:
+        description: "Force-bump a single cask token (bypasses cadence + unchanged skip)"
+        required: false
+        type: string
+  repository_dispatch:
+    types: [autobump]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: autobump
+  cancel-in-progress: false
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.detect.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # cadence due-check reads each cask's last-commit timestamp
+      - name: Detect due-and-changed casks
+        id: detect
+        env:
+          VARS_JSON: ${{ toJSON(vars) }}
+          FORCE_CASK: ${{ github.event.inputs.cask || github.event.client_payload.cask || '' }}
+        run: bash scripts/autobump.sh detect
+
+  bump:
+    needs: detect
+    if: needs.detect.outputs.changed != '[]' && needs.detect.outputs.changed != ''
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 1 # serialize commits/pushes to main
+      matrix:
+        entry: ${{ fromJSON(needs.detect.outputs.changed) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Bump ${{ matrix.entry.token }}
+        run: |
+          bash scripts/autobump.sh bump \
+            "${{ matrix.entry.token }}" \
+            "${{ matrix.entry.arm_url }}" \
+            "${{ matrix.entry.generation }}"

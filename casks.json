@@ -1,0 +1,16 @@
+{
+  "casks": [
+    {
+      "token": "pencil-dev",
+      "type": "autobump-header",
+      "detect": "gcs-md5",
+      "version_source": "info-plist",
+      "version_suffix": "gcs-generation",
+      "urls": {
+        "arm": "https://www.pencil.dev/download/Pencil-mac-arm64.dmg",
+        "intel": "https://www.pencil.dev/download/Pencil-mac-x64.dmg"
+      },
+      "default_cadence_days": 7
+    }
+  ]
+}
