@@ -30,7 +30,7 @@ jobs:
     outputs:
       changed: ${{ steps.detect.outputs.changed }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0 # cadence due-check reads each cask's last-commit timestamp
       - name: Detect due-and-changed casks
@@ -50,7 +50,7 @@ jobs:
       matrix:
         entry: ${{ fromJSON(needs.detect.outputs.changed) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Bump ${{ matrix.entry.token }}
