@@ -1,8 +1,8 @@
 cask "pencil-dev" do
-  version "1.1.69,1783612668766846"
+  version "1.2.0,1784566797010925"
   sha256 :no_check
 
-  # autobump-md5: eZN4j1LWTlf6WFPR80ydrA==
+  # autobump-md5: EfyWMJx+Vn/eyGbE2tUXww==
 
   on_arm do
     url "https://www.pencil.dev/download/Pencil-mac-arm64.dmg"
